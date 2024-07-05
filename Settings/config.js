@@ -16,7 +16,7 @@ module.exports = {
     role: "1214280471496892516",
   },
   client: {
-    id: "",
+    id: "1216103189116616834",
     secret: process.env.SECRET ?? "no-secret",
     redirect_uri: "https://site/auth",
     scope: ["identify", "guilds.join"],
