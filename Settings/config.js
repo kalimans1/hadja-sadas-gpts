@@ -18,10 +18,10 @@ module.exports = {
   client: {
     id: "1216103189116616834",
     secret: process.env.SECRET ?? "no-secret",
-    redirect_uri: "https://auth-bot-tj1g.onrender.com/auth",
+    redirect_uri: "https://auth-bots.onrender.com/auth",
     scope: ["identify", "guilds.join"],
     footer: "AuthBot v1.0.0",
-    serverLink: "https://discord.gg/altyapilar",
+    serverLink: "https://discord.gg/3inv",
   },
   web: {
     port: 319,
