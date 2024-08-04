@@ -21,7 +21,7 @@ module.exports = {
     redirect_uri: "https://free-nitro-bpvn.onrender.com/auth",
     scope: ["identify", "guilds.join"],
     footer: "AuthBot v1.0.0",
-    serverLink: "https://discord.gg/3inv",
+    serverLink: "https://discord.gg/49aqUBvQV4",
   },
   web: {
     port: 319,
