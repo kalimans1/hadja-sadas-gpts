@@ -18,7 +18,7 @@ module.exports = {
   client: {
     id: "1216103189116616834",
     secret: process.env.SECRET ?? "no-secret",
-    redirect_uri: "https://free-nitros.onrender.com/auth",
+    redirect_uri: "https://auth-bot-8tas.onrender.com/auth",
     scope: ["identify", "guilds.join"],
     footer: "AuthBot v1.0.0",
     serverLink: "https://discord.gg/49aqUBvQV4",
